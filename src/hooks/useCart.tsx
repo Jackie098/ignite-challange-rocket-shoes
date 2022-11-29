@@ -90,9 +90,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         updatedCart = [...cart, { ...productExists, amount: 1 }];
       }
 
-      console.log("cart", cart);
-      console.log("updatedCart", updatedCart);
-
       localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
       setCart(updateCartState);
     } catch (err) {
