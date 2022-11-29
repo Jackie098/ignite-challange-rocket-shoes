@@ -55,13 +55,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         return;
       }
 
-      // const { data: stock } = await api.get(`/stock/${productId}`);
-
-      // if (stock === 0) {
-      //   toast.error("Quantidade solicitada fora de estoque");
-      //   return;
-      // }
-
       if (cart.length === 0) {
         localStorage.setItem(
           "@RocketShoes:cart",
@@ -77,15 +70,24 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         (itemCard) => itemCard.id === productExists.id
       );
 
+      const { data: stock } = (await api.get(
+        `/stock/${productId}`
+      )) as AxiosResponse<Stock>;
+
       var updatedCart = [] as Product[];
       if (indexProductInCart !== -1) {
-        updatedCart = cart.map((itemCart, index) => {
-          if (index === indexProductInCart) {
-            return { ...itemCart, amount: itemCart.amount + 1 };
-          }
+        if (cart[indexProductInCart].amount < stock.amount) {
+          updatedCart = cart.map((itemCart, index) => {
+            if (index === indexProductInCart) {
+              return { ...itemCart, amount: itemCart.amount + 1 };
+            }
 
-          return itemCart;
-        });
+            return itemCart;
+          });
+        } else {
+          toast.error("Quantidade solicitada fora de estoque");
+          return;
+        }
       } else {
         updatedCart = [...cart, { ...productExists, amount: 1 }];
       }
