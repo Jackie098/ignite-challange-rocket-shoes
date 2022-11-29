@@ -22,6 +22,16 @@ interface CartContextData {
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
+function updateCartState(): Product[] {
+  const storagedCart = localStorage.getItem("@RocketShoes:cart");
+
+  if (storagedCart) {
+    return JSON.parse(storagedCart);
+  }
+
+  return [] as Product[];
+}
+
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const [cart, setCart] = useState<Product[]>(() => {
     const storagedCart = localStorage.getItem("@RocketShoes:cart");
@@ -52,58 +62,39 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       //   return;
       // }
 
-      const storagedCartBeforeConvert =
-        localStorage.getItem("@RocketShoes:cart");
-
-      console.log("storagedCartBeforeConvert", storagedCartBeforeConvert);
-
-      const storagedCart: Product[] = storagedCartBeforeConvert
-        ? JSON.parse(storagedCartBeforeConvert)
-        : [];
-
-      if (storagedCart.length === 0) {
+      if (cart.length === 0) {
         localStorage.setItem(
           "@RocketShoes:cart",
           JSON.stringify([{ ...productExists, amount: 1 }])
         );
 
+        setCart(updateCartState);
+
         return;
       }
 
-      console.log("storagedCart", storagedCart);
-      console.log(
-        "localStorage: cart",
-        localStorage.getItem("@RocketShoes:cart")
+      const indexProductInCart = cart.findIndex(
+        (itemCard) => itemCard.id === productExists.id
       );
 
-      const updatedCart: Product[] = storagedCart.map((product) => {
-        const [productAlreadyCart] = storagedCart.filter(
-          () => product.id === productExists.id
-        );
+      var updatedCart = [] as Product[];
+      if (indexProductInCart !== -1) {
+        updatedCart = cart.map((itemCart, index) => {
+          if (index === indexProductInCart) {
+            return { ...itemCart, amount: itemCart.amount + 1 };
+          }
 
-        console.log("product", product);
-        console.log("productAlreadyCart", productAlreadyCart);
+          return itemCart;
+        });
+      } else {
+        updatedCart = [...cart, { ...productExists, amount: 1 }];
+      }
 
-        // if (!productAlreadyCart) {
-        //   return productExists;
-        // } else
-        if (productAlreadyCart) {
-          return {
-            ...productAlreadyCart,
-            amount: productAlreadyCart.amount + 1,
-          };
-        }
-
-        return product;
-
-        // } else {
-        //   return product;
-        // }
-      });
-
+      console.log("cart", cart);
       console.log("updatedCart", updatedCart);
 
       localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
+      setCart(updateCartState);
     } catch (err) {
       console.log(err);
       toast.error("Erro na adição do produto");

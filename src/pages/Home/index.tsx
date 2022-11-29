@@ -47,10 +47,8 @@ const Home = (): JSX.Element => {
     loadProducts();
   }, []);
 
-  console.log(products);
-
   function handleAddProduct(id: number) {
-    console.log(cart);
+    // console.log("handleAddProduct - cart", cart);
     addProduct(id);
   }
 
