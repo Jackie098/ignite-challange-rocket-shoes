@@ -11,6 +11,7 @@ interface CartProviderProps {
 interface UpdateProductAmount {
   productId: number;
   amount: number;
+  type?: "add" | "remove";
 }
 
 interface CartContextData {
@@ -114,11 +115,63 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const updateProductAmount = async ({
     productId,
     amount,
+    type,
   }: UpdateProductAmount) => {
     try {
-      // TODO
-    } catch {
-      // TODO
+      const { data: productExists } = (await api.get(
+        `/products/${productId}`
+      )) as AxiosResponse<Product>;
+
+      if (!productExists) {
+        toast.error("Erro na alteração de quantidade do produto");
+
+        return;
+      }
+
+      const { data: stock } = (await api.get(
+        `/stock/${productId}`
+      )) as AxiosResponse<Stock>;
+
+      if (type === "add") {
+        if (!(amount < stock.amount)) {
+          toast.error("Erro na alteração de quantidade do produto");
+          return;
+        }
+
+        const updatedCart = cart.map((itemCart) => {
+          if (productId === itemCart.id) {
+            return { ...itemCart, amount: itemCart.amount + 1 };
+          }
+
+          return itemCart;
+        });
+
+        localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
+        setCart(updateCartState);
+      } else {
+        if (amount === 1) {
+          toast.error("Erro na alteração de quantidade do produto");
+
+          return;
+        }
+
+        const updatedCart = cart.map((itemCart) => {
+          if (productId === itemCart.id) {
+            return { ...itemCart, amount: itemCart.amount - 1 };
+          }
+
+          return itemCart;
+        });
+
+        localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
+        setCart(updateCartState);
+      }
+
+      console.log(productId);
+      console.log(amount);
+    } catch (err) {
+      console.log(err);
+      toast.error("Erro ao atualizar o produto");
     }
   };
 
