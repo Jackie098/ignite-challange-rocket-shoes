@@ -166,9 +166,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
         setCart(updateCartState);
       }
-
-      console.log(productId);
-      console.log(amount);
     } catch (err) {
       console.log(err);
       toast.error("Erro ao atualizar o produto");
