@@ -45,9 +45,7 @@ const Home = (): JSX.Element => {
             return { ...product, priceFormatted: formatPrice(product.price) };
           })
         );
-      } catch (err) {
-        console.log("err", err);
-      }
+      } catch (err) {}
     }
 
     loadProducts();
