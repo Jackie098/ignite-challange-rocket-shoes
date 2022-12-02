@@ -38,10 +38,10 @@ const Home = (): JSX.Element => {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const response: any = await api.get("/products");
+        const response = await api.get<Product[]>("/products");
 
         setProducts(
-          response.data.map((product: Product) => {
+          response.data.map((product) => {
             return { ...product, priceFormatted: formatPrice(product.price) };
           })
         );

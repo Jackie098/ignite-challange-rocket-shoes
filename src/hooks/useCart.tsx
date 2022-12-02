@@ -132,20 +132,39 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = async (productId: number) => {
     try {
-      const { data: productExists } = (await api.get(
-        `/products/${productId}`
-      )) as AxiosResponse<Product>;
+      // // const { data: productExists } = (await api.get(
+      // //   `/products/${productId}`
+      // // )) as AxiosResponse<Product>;
 
-      if (!productExists) {
-        toast.error("Erro na remoção do produto");
+      // const productExists = cart.find(
+      //   (product) => product.id === productId
+      // );
 
-        return;
+      // if (!productExists) {
+      //   toast.error("Erro na remoção do produto");
+
+      //   return;
+      // }
+
+      // const updatedCart = cart.filter((cartItem) => cartItem.id !== productId);
+
+      // setCart(updatedCart);
+      // localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
+
+      // CORRECTION
+      const updatedCart = [...cart];
+      const productIndex = updatedCart.findIndex(
+        (product) => product.id === productId
+      );
+
+      if (productIndex >= 0) {
+        updatedCart.splice(productIndex, 1);
+
+        setCart(updatedCart);
+        localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
+      } else {
+        throw Error();
       }
-
-      const updatedCart = cart.filter((cartItem) => cartItem.id !== productId);
-
-      localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCart));
-      setCart(updatedCart);
     } catch {
       toast.error("Erro na remoção do produto");
     }
